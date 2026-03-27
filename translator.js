@@ -18,8 +18,8 @@
  */
 async function translateText(text, targetLang, sourceLang = 'auto') {
     // 输入验证
-    if (!text || typeof text !== 'string') {
-        throw new Error('翻译文本不能为空');
+    if (text === undefined || text === null || typeof text !== 'string') {
+        throw new Error('翻译文本不能为空或非字符串');
     }
     
     if (!targetLang || typeof targetLang !== 'string') {
@@ -33,7 +33,8 @@ async function translateText(text, targetLang, sourceLang = 'auto') {
             translatedText: '',
             sourceLanguage: sourceLang === 'auto' ? 'unknown' : sourceLang,
             confidence: 0,
-            characterCount: 0
+            characterCount: 0,
+            originalText: ''
         };
     }
     

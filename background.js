@@ -112,3 +112,36 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 function getTranslator() {
   return GoogleTranslator;
 }
+
+// 自检函数（开发测试用）
+function selfTest() {
+  console.log('=== 翻译模块自检 ===');
+  
+  if (typeof GoogleTranslator === 'undefined') {
+    console.error('❌ GoogleTranslator 未定义');
+    return false;
+  }
+  
+  if (typeof GoogleTranslator.translateText !== 'function') {
+    console.error('❌ translateText 函数不存在');
+    return false;
+  }
+  
+  console.log('✅ 翻译模块加载正常');
+  console.log('✅ 支持的语言:', Object.keys(GoogleTranslator.getSupportedLanguages()).length, '种');
+  
+  // 可选：实际测试翻译
+  // GoogleTranslator.translateText('Hello', 'zh-CN')
+  //   .then(result => console.log('✅ 翻译测试: "Hello" →', result.translatedText))
+  //   .catch(error => console.error('❌ 翻译测试失败:', error));
+  
+  return true;
+}
+
+// 扩展启动时进行自检
+if (chrome.runtime.onStartup) {
+  chrome.runtime.onStartup.addListener(() => {
+    console.log('扩展启动，执行自检...');
+    selfTest();
+  });
+}
