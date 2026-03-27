@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="20" fill="#667eea"/>
+  
+  <!-- 上方文字 -->
+  <text x="64" y="40" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="bold">文</text>
+  
+  <!-- 箭头 -->
+  <polygon points="54,55 64,65 74,55" fill="white"/>
+  
+  <!-- 下方文字 -->
+  <text x="64" y="90" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="bold">A</text>
+  
+  <!-- 装饰圆点 -->
+  <circle cx="32" cy="32" r="6" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="96" cy="96" r="6" fill="rgba(255,255,255,0.3)"/>
+</svg>

@@ -1,0 +1,227 @@
+/* 双语翻译助手 - Popup 样式 */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+body {
+  width: 360px;
+  min-height: 400px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+}
+
+.container {
+  background-color: white;
+  border-radius: 16px;
+  margin: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* 头部样式 */
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.header .subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+/* 主体内容 */
+.main {
+  padding: 20px;
+}
+
+/* 按钮组 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 15px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn i {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.btn span {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.btn small {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+  color: white;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(54, 209, 220, 0.4);
+}
+
+/* 状态指示 */
+.status {
+  background-color: #f5f7ff;
+  border: 1px solid #e1e5f1;
+  border-radius: 10px;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.status i {
+  color: #667eea;
+  font-size: 16px;
+}
+
+/* 设置区域 */
+.settings {
+  background-color: #f9fafc;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #eef1f8;
+}
+
+.settings h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.setting-item {
+  margin-bottom: 15px;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-item label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.setting-item select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  transition: border-color 0.3s;
+}
+
+.setting-item select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.setting-item input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+/* 底部样式 */
+.footer {
+  background-color: #f5f7ff;
+  padding: 15px 20px;
+  text-align: center;
+  border-top: 1px solid #eef1f8;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.footer p {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 5px;
+}
+
+.footer a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.footer a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* 响应式调整 */
+@media (max-width: 400px) {
+  body {
+    width: 340px;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+  }
+}
