@@ -1,0 +1,275 @@
+/* 双语翻译助手 - 内容脚本样式 */
+
+/* 悬浮翻译按钮 */
+.bilingual-translator-floating-btn {
+  position: absolute;
+  z-index: 10001;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  transform: translate(-50%, 10px);
+  white-space: nowrap;
+}
+
+.bilingual-translator-floating-btn:hover {
+  transform: translate(-50%, 10px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+.bilingual-translator-floating-btn i {
+  font-size: 14px;
+}
+
+.bilingual-translator-floating-btn.loading {
+  background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+  cursor: not-allowed;
+}
+
+/* 双语对照容器 */
+.bilingual-translation-container {
+  position: relative;
+  background-color: rgba(249, 250, 252, 0.95);
+  border: 1px solid #e1e5f1;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid #667eea;
+}
+
+.bilingual-translation-container:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* 原文样式 */
+.bilingual-original-text {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eef1f8;
+  font-style: italic;
+  position: relative;
+  padding-left: 20px;
+}
+
+.bilingual-original-text::before {
+  content: "📝";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* 译文样式 */
+.bilingual-translated-text {
+  color: #333;
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 500;
+  position: relative;
+  padding-left: 20px;
+}
+
+.bilingual-translated-text::before {
+  content: "🌐";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 12px;
+}
+
+/* 关闭按钮 */
+.bilingual-translation-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.bilingual-translation-close:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* 加载指示器 */
+.bilingual-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  color: #667eea;
+  font-size: 14px;
+  gap: 12px;
+}
+
+.bilingual-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #667eea;
+  border-radius: 50%;
+  animation: bilingual-spin 1s linear infinite;
+}
+
+@keyframes bilingual-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 恢复按钮 */
+.bilingual-restore-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(54, 209, 220, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.bilingual-restore-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(54, 209, 220, 0.4);
+}
+
+.bilingual-restore-btn:active {
+  transform: translateY(-1px);
+}
+
+/* 错误提示 */
+.bilingual-error {
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 15px 0;
+  color: #c62828;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bilingual-error i {
+  font-size: 16px;
+}
+
+/* 翻译统计 */
+.bilingual-translation-stats {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 10000;
+  background: white;
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-width: 300px;
+}
+
+.bilingual-translation-stats strong {
+  color: #667eea;
+}
+
+/* 选中文本高亮 */
+.bilingual-selected-highlight {
+  background-color: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+  padding: 2px 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .bilingual-translation-container {
+    padding: 15px;
+    margin: 10px 0;
+  }
+  
+  .bilingual-restore-btn {
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .bilingual-translation-stats {
+    top: 15px;
+    left: 15px;
+    padding: 12px 15px;
+    max-width: 250px;
+  }
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .bilingual-translation-container {
+    background-color: rgba(30, 30, 40, 0.95);
+    border-color: #444;
+  }
+  
+  .bilingual-original-text {
+    color: #aaa;
+    border-color: #444;
+  }
+  
+  .bilingual-translated-text {
+    color: #ddd;
+  }
+  
+  .bilingual-translation-close:hover {
+    background-color: #444;
+    color: #ddd;
+  }
+  
+  .bilingual-translation-stats {
+    background: #222;
+    color: #ddd;
+  }
+  
+  .bilingual-error {
+    background-color: rgba(198, 40, 40, 0.1);
+    border-color: #c62828;
+  }
+}
