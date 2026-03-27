@@ -130,8 +130,8 @@
 | 任务1 | ✅ 已完成 | @FattyCodeBot | 2026-03-27 验收通过 |
 | 任务2 | ✅ 已完成 | @FattyCodeBot | 2026-03-27 验收通过 |
 | 任务3 | ✅ 已完成 | @FattyCodeBot | 2026-03-27 验收通过 |
-| 任务4 | 🔄 进行中 | @FattyCodeBot | 已发送 |
-| 任务5 | ⏳ 待开始 | @FattyCodeBot | 依赖任务4 |
+| 任务4 | ✅ 已完成 | @FattyCodeBot | 2026-03-27 验收通过 |
+| 任务5 | 🔄 进行中 | @FattyCodeBot | 已发送 |
 
 ---
 

@@ -44,14 +44,14 @@ function saveSettings() {
     showOriginal: showOriginalCheckbox.checked
   };
   
-  chrome.storage.local.set(settings, () => {
+  chrome.storage.sync.set(settings, () => {
     console.log('设置已保存:', settings);
   });
 }
 
 // 从存储加载设置
 function loadSettings() {
-  chrome.storage.local.get(['targetLanguage', 'showOriginal'], (result) => {
+  chrome.storage.sync.get(['targetLanguage', 'showOriginal'], (result) => {
     if (result.targetLanguage) {
       targetLanguageSelect.value = result.targetLanguage;
     }
