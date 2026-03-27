@@ -346,12 +346,263 @@ function isValidLanguageCode(langCode) {
     return langCode in languages;
 }
 
-// 导出函数（如果作为模块使用）
+// ==================== DeepL 翻译模块 ====================
+
+/**
+ * DeepL 支持的语言代码映射
+ * DeepL 使用不同的语言代码系统
+ */
+function getDeepLSupportedLanguages() {
+    return {
+        'auto': '自动检测',
+        'zh-CN': 'ZH',  // 简体中文
+        'zh-TW': 'ZH',  // 繁体中文（DeepL 中文统一用 ZH）
+        'en': 'EN',     // 英语
+        'ja': 'JA',     // 日语
+        'ko': 'KO',     // 韩语
+        'fr': 'FR',     // 法语
+        'de': 'DE',     // 德语
+        'es': 'ES',     // 西班牙语
+        'ru': 'RU',     // 俄语
+        'pt': 'PT',     // 葡萄牙语
+        'it': 'IT',     // 意大利语
+        'nl': 'NL',     // 荷兰语
+        'pl': 'PL',     // 波兰语
+        'ar': 'AR',     // 阿拉伯语
+        'th': 'TH',     // 泰语
+        'tr': 'TR',     // 土耳其语
+        'vi': 'VI',     // 越南语
+        'hi': 'HI',     // 印地语
+        'id': 'ID'      // 印尼语
+    };
+}
+
+/**
+ * 将标准语言代码转换为 DeepL 语言代码
+ * @param {string} langCode - 标准语言代码 (如 'zh-CN', 'en')
+ * @returns {string} DeepL 语言代码 (如 'ZH', 'EN')
+ */
+function convertToDeepLLangCode(langCode) {
+    const mapping = getDeepLSupportedLanguages();
+    return mapping[langCode] || langCode.toUpperCase();
+}
+
+/**
+ * DeepL API 翻译文本
+ * @param {string} text - 要翻译的文本
+ * @param {string} targetLang - 目标语言代码 (如 'zh-CN', 'en')
+ * @param {string} apiKey - DeepL API 密钥
+ * @param {string} sourceLang - 源语言代码，默认为 'auto'
+ * @returns {Promise<object>} 翻译结果对象
+ *   - translatedText: 翻译后的文本
+ *   - sourceLanguage: 检测到的源语言
+ *   - confidence: 翻译置信度 (0-1, DeepL 无此值，固定为 1)
+ *   - characterCount: 字符数
+ */
+async function translateTextDeepL(text, targetLang, apiKey, sourceLang = 'auto') {
+    // 输入验证
+    if (text === undefined || text === null || typeof text !== 'string') {
+        throw new Error('翻译文本不能为空或非字符串');
+    }
+    
+    if (!targetLang || typeof targetLang !== 'string') {
+        throw new Error('目标语言不能为空');
+    }
+    
+    if (!apiKey || typeof apiKey !== 'string') {
+        throw new Error('DeepL API 密钥不能为空');
+    }
+    
+    // 清理文本
+    const cleanedText = text.trim();
+    if (!cleanedText) {
+        return {
+            translatedText: '',
+            sourceLanguage: sourceLang === 'auto' ? 'unknown' : sourceLang,
+            confidence: 0,
+            characterCount: 0,
+            originalText: ''
+        };
+    }
+    
+    // 转换语言代码
+    const deeplTargetLang = convertToDeepLLangCode(targetLang);
+    const deeplSourceLang = sourceLang === 'auto' ? null : convertToDeepLLangCode(sourceLang);
+    
+    // DeepL API 端点（免费版）
+    const API_URL = 'https://api-free.deepl.com/v2/translate';
+    
+    // 构建请求参数
+    const formData = new URLSearchParams();
+    formData.append('text', cleanedText);
+    formData.append('target_lang', deeplTargetLang);
+    if (deeplSourceLang) {
+        formData.append('source_lang', deeplSourceLang);
+    }
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `DeepL-Auth-Key ${apiKey}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            },
+            body: formData.toString()
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('DeepL API 错误:', response.status, errorText);
+            
+            let errorMessage = `DeepL 翻译请求失败: ${response.status}`;
+            if (response.status === 401) {
+                errorMessage = 'API 密钥无效或已过期';
+            } else if (response.status === 403) {
+                errorMessage = '访问被拒绝，请检查 API 密钥权限';
+            } else if (response.status === 429) {
+                errorMessage = '请求过于频繁，请稍后再试';
+            } else if (response.status === 456) {
+                errorMessage = '超出配额限制（免费版每月 500,000 字符）';
+            } else if (response.status >= 500) {
+                errorMessage = 'DeepL 服务暂时不可用，请稍后再试';
+            }
+            
+            throw new Error(errorMessage);
+        }
+        
+        const data = await response.json();
+        
+        // 解析 DeepL 返回的数据结构
+        // { translations: [{ text: "翻译结果", detected_source_language: "EN" }] }
+        let translatedText = '';
+        let detectedSourceLang = sourceLang === 'auto' ? 'unknown' : sourceLang;
+        
+        if (data.translations && Array.isArray(data.translations)) {
+            for (const translation of data.translations) {
+                if (translation.text) {
+                    translatedText += translation.text;
+                }
+                
+                // 获取检测到的源语言
+                if (sourceLang === 'auto' && translation.detected_source_language) {
+                    detectedSourceLang = translation.detected_source_language.toLowerCase();
+                    // 转换回标准格式（如 'en' 而不是 'EN'）
+                    if (detectedSourceLang === 'zh') {
+                        detectedSourceLang = 'zh-CN'; // DeepL 中文统一为 ZH
+                    }
+                }
+            }
+        }
+        
+        return {
+            translatedText: translatedText || cleanedText,
+            sourceLanguage: detectedSourceLang,
+            confidence: 1.0, // DeepL 不提供置信度，设为 1
+            characterCount: cleanedText.length,
+            originalText: cleanedText,
+            service: 'deepl'
+        };
+        
+    } catch (error) {
+        console.error('DeepL 翻译请求异常:', error);
+        
+        // 检查是否为网络错误
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            throw new Error('网络连接失败，请检查网络设置');
+        }
+        
+        throw error;
+    }
+}
+
+/**
+ * 验证 DeepL API 密钥是否有效
+ * @param {string} apiKey - DeepL API 密钥
+ * @returns {Promise<object>} 验证结果
+ *   - valid: boolean - 是否有效
+ *   - message: string - 验证消息
+ *   - usage: object - 使用情况（如果有）
+ */
+async function validateDeepLAPIKey(apiKey) {
+    if (!apiKey || typeof apiKey !== 'string') {
+        return { valid: false, message: 'API 密钥不能为空' };
+    }
+    
+    const API_URL = 'https://api-free.deepl.com/v2/usage';
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Authorization': `DeepL-Auth-Key ${apiKey}`,
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                return { valid: false, message: 'API 密钥无效或已过期' };
+            } else if (response.status === 403) {
+                return { valid: false, message: '访问被拒绝，请检查 API 密钥权限' };
+            } else {
+                return { 
+                    valid: false, 
+                    message: `API 验证失败: ${response.status}` 
+                };
+            }
+        }
+        
+        const data = await response.json();
+        
+        // 成功返回使用情况
+        return {
+            valid: true,
+            message: 'API 密钥有效',
+            usage: {
+                characterCount: data.character_count || 0,
+                characterLimit: data.character_limit || 500000,
+                remaining: (data.character_limit || 500000) - (data.character_count || 0)
+            }
+        };
+        
+    } catch (error) {
+        console.error('DeepL API 验证异常:', error);
+        
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            return { valid: false, message: '网络连接失败，请检查网络设置' };
+        }
+        
+        return { valid: false, message: `验证失败: ${error.message}` };
+    }
+}
+
+/**
+ * DeepL 翻译器对象
+ */
+const DeepLTranslator = {
+    translateText: translateTextDeepL,
+    validateAPIKey: validateDeepLAPIKey,
+    getSupportedLanguages: getDeepLSupportedLanguages,
+    convertLangCode: convertToDeepLLangCode
+};
+
+// ==================== 导出函数（如果作为模块使用） ====================
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
+        // Google 翻译功能
         translateText,
         getSupportedLanguages,
-        isValidLanguageCode
+        isValidLanguageCode,
+        GoogleTranslator: {
+            translateText,
+            getSupportedLanguages,
+            isValidLanguageCode
+        },
+        // DeepL 翻译功能
+        DeepLTranslator,
+        translateTextDeepL,
+        validateDeepLAPIKey
     };
 }
 
@@ -362,6 +613,7 @@ if (typeof window !== 'undefined') {
         getSupportedLanguages,
         isValidLanguageCode
     };
+    window.DeepLTranslator = DeepLTranslator;
 }
 
 // 在 Service Worker 环境中也可用
@@ -371,4 +623,5 @@ if (typeof self !== 'undefined' && typeof window === 'undefined') {
         getSupportedLanguages,
         isValidLanguageCode
     };
+    self.DeepLTranslator = DeepLTranslator;
 }

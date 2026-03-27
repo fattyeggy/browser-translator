@@ -12,10 +12,11 @@ try {
 chrome.runtime.onInstalled.addListener(() => {
   console.log('双语翻译助手已安装');
   
-  // 初始化存储
-  chrome.storage.local.set({
+  // 初始化存储 (使用 sync 以跨设备同步)
+  chrome.storage.sync.set({
     translationService: 'google',
     targetLanguage: 'zh-CN',
+    deeplApiKey: '',
     showOriginal: true,
     translationMode: 'parallel'
   });
@@ -39,15 +40,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       handleTranslateText(request, sender, sendResponse);
       return true; // 异步响应
     case 'getSettings':
-      chrome.storage.local.get(['translationService', 'targetLanguage'], (result) => {
+      chrome.storage.sync.get(['translationService', 'targetLanguage', 'deeplApiKey'], (result) => {
         sendResponse(result);
       });
       return true; // 表示异步响应
+    case 'validateDeeplApiKey':
+      handleValidateDeeplApiKey(request, sender, sendResponse);
+      return true; // 异步响应
   }
   
   // 默认响应
   sendResponse({ success: true, message: '消息已收到' });
 });
+
+/**
+ * 获取翻译设置（包括服务类型和 API 密钥）
+ * @returns {Promise<object>} 设置对象
+ */
+async function getTranslationSettings() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get({
+      translationService: 'google',
+      targetLanguage: 'zh-CN',
+      deeplApiKey: ''
+    }, (result) => {
+      resolve(result);
+    });
+  });
+}
 
 /**
  * 处理文本翻译请求
@@ -69,17 +89,44 @@ async function handleTranslateText(request, sender, sendResponse) {
   }
   
   try {
-    // 检查翻译模块是否可用
-    if (typeof GoogleTranslator === 'undefined' || !GoogleTranslator.translateText) {
-      throw new Error('翻译模块未正确加载');
+    // 获取用户设置
+    const settings = await getTranslationSettings();
+    const { translationService, deeplApiKey } = settings;
+    
+    console.log(`开始翻译 (服务: ${translationService}): ${text.length} 字符到 ${targetLang}`);
+    
+    let result;
+    
+    // 根据设置选择翻译服务
+    if (translationService === 'deepl') {
+      // 检查 DeepL 翻译模块是否可用
+      if (typeof DeepLTranslator === 'undefined' || !DeepLTranslator.translateText) {
+        throw new Error('DeepL 翻译模块未正确加载');
+      }
+      
+      // 检查 API 密钥
+      if (!deeplApiKey) {
+        throw new Error('未配置 DeepL API 密钥，请在设置页面填写');
+      }
+      
+      // 调用 DeepL 翻译
+      result = await DeepLTranslator.translateText(text, targetLang, deeplApiKey, sourceLang);
+      result.service = 'deepl';
+      
+    } else {
+      // 默认使用 Google 翻译
+      // 检查 Google 翻译模块是否可用
+      if (typeof GoogleTranslator === 'undefined' || !GoogleTranslator.translateText) {
+        throw new Error('Google 翻译模块未正确加载');
+      }
+      
+      // 调用 Google 翻译
+      result = await GoogleTranslator.translateText(text, targetLang, sourceLang);
+      result.service = 'google';
     }
     
-    console.log(`开始翻译: ${text.length} 字符到 ${targetLang}`);
-    
-    // 调用翻译函数
-    const result = await GoogleTranslator.translateText(text, targetLang, sourceLang);
-    
     console.log('翻译成功:', {
+      service: result.service,
       translatedLength: result.translatedText.length,
       sourceLanguage: result.sourceLanguage,
       confidence: result.confidence
@@ -111,6 +158,52 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // 提供翻译功能给其他模块使用
 function getTranslator() {
   return GoogleTranslator;
+}
+
+/**
+ * 验证 DeepL API 密钥
+ * @param {object} request - 请求对象
+ * @param {object} sender - 发送者信息
+ * @param {function} sendResponse - 响应回调
+ */
+async function handleValidateDeeplApiKey(request, sender, sendResponse) {
+  const { apiKey } = request;
+  
+  if (!apiKey) {
+    sendResponse({
+      success: false,
+      message: 'API 密钥不能为空'
+    });
+    return;
+  }
+  
+  try {
+    // 检查 DeepL 翻译模块是否可用
+    if (typeof DeepLTranslator === 'undefined' || !DeepLTranslator.validateAPIKey) {
+      throw new Error('DeepL 翻译模块未正确加载');
+    }
+    
+    console.log('验证 DeepL API 密钥...');
+    
+    // 调用验证函数
+    const validationResult = await DeepLTranslator.validateAPIKey(apiKey);
+    
+    console.log('API 密钥验证结果:', validationResult.valid ? '有效' : '无效');
+    
+    sendResponse({
+      success: validationResult.valid,
+      message: validationResult.message,
+      usage: validationResult.usage
+    });
+    
+  } catch (error) {
+    console.error('API 密钥验证失败:', error);
+    
+    sendResponse({
+      success: false,
+      message: `验证失败: ${error.message}`
+    });
+  }
 }
 
 // 自检函数（开发测试用）

@@ -199,6 +199,75 @@
     footer a:hover {
       text-decoration: underline;
     }
+    
+    /* DeepL API 设置样式 */
+    .deepl-settings {
+      background-color: #f9fafc;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid #e1e8f0;
+      border-left: 4px solid #36d1dc;
+    }
+    
+    .api-test-group {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .btn-test {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-test:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(54, 209, 220, 0.3);
+    }
+    
+    .btn-test:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .api-status {
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    
+    .api-status.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    
+    .api-status.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+    
+    .api-status.info {
+      background-color: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #bbdefb;
+    }
   </style>
 </head>
 <body>
@@ -236,6 +305,31 @@
             <option value="youdao">有道翻译</option>
             <option value="baidu">百度翻译</option>
           </select>
+        </div>
+        
+        <!-- DeepL API 设置 (仅在选择 DeepL 时显示) -->
+        <div id="deeplSettings" class="deepl-settings" style="display: none;">
+          <div class="form-group">
+            <label for="deeplApiKey">DeepL API 密钥:</label>
+            <input type="password" id="deeplApiKey" placeholder="输入您的 DeepL API 密钥">
+            <div class="checkbox-description">
+              免费版密钥从 <a href="https://www.deepl.com/pro-api" target="_blank">DeepL 官网</a> 获取，
+              每月 500,000 字符免费额度。密钥会加密保存。
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="deeplApiTest">API 密钥验证:</label>
+            <div class="api-test-group">
+              <button id="testDeeplApiBtn" class="btn-test">
+                <i class="fas fa-plug"></i> 测试连接
+              </button>
+              <span id="deeplApiStatus" class="api-status"></span>
+            </div>
+            <div class="checkbox-description">
+              测试 API 密钥是否有效，并查看剩余额度。
+            </div>
+          </div>
         </div>
       </section>
       
